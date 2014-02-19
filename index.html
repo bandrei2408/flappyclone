@@ -58,7 +58,7 @@
                 ambientSound = game.add.audio('ambient',0,1,true);
                 checkAmbientSoundLoad = window.setInterval(function(){
                     if(ambientSound.isDecoded){
-                        game.state.start('Play');
+                        game.state.start('Menu');
                         window.clearInterval(checkAmbientSoundLoad);
                         checkAmbientSoundLoad = null;
                     }
@@ -68,6 +68,20 @@
             }
         };
 
+		Game.Menu = function(game){};
+
+		Game.Menu.prototype = {
+			create: function(){
+				this.add.text(300,250,"press SPACE to start", { font: "20px Arial", fill: "#ffffff", align: "left" });
+			},
+				update: function(){
+					if (this.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
+						game.state.start('Play');
+					}
+				}
+		};
+		
+		
         Game.Play = function (game) { };
 
         Game.Play.prototype = {
@@ -75,8 +89,8 @@
                 create: function () {
                     var V = SAT.Vector;
                     var P = SAT.Polygon;
-
-                    ambientSound.play('',0, 1, true);
+					game.world.setBounds(-90000,0,90800,600);
+                    //ambientSound.play('',0, 1, true);
                     //console.log(this.ambientSound.isDecoded);
                     this.score = 0;
                     game.stage.backgroundColor = '#000000';
@@ -112,11 +126,12 @@
                     var ground = this.platforms.create(800, game.world.height - 128, 'ground');
                     ground.body.immovable = true;
                     ground.scale.setTo(-10000, 4);
-
+					
                     this.player = game.add.sprite(750,280, 'bat');
-                    this.player.body.gravity.y = 1000;
-                    this.player.body.bounce.y = 0.1;
                     this.player.body.setRectangle(10,10,20,20);
+					console.log(this.player);
+					this.player.body.gravity.y = 1000;
+                    this.player.body.bounce.y = 0.1;
                     this.player.body.collideWorldBounds = true;
 
                     this.player.animations.add('move',[0,1,2,3,4,5,6,7],16,true)
@@ -130,6 +145,7 @@
                     var jumpKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
                     jumpKey.onDown.add(this.playerJump, this);
                     game.input.onDown.add(this.playerJump, this);
+					
                     
                 },
                 update: function () {
@@ -232,16 +248,20 @@
                 render: function () {
                     game.debug.renderText(game.time.fps + " FPS",game.width - 80,game.height - 30,"#FFFFFF","16pt Serif");
                     game.debug.renderText(this.score + " SCORE",game.width - 100,game.height - 80,"#FFFFFF","16pt Serif");
+					
+					game.debug.renderPhysicsBody(this.player.body);
                 }
             };
 
-        var game = new Phaser.Game(800, 600, Phaser.CANVAS, '', 'gameContainer');
+        var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'gameContainer');
 
         game.state.add('Boot', Game.Boot);
         game.state.add('Load', Game.Load);
+		game.state.add('Menu', Game.Menu);
         game.state.add('Play', Game.Play);
 
         game.state.start('Boot');
+
 
     };
 
